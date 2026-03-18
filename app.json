@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Deutsch Lernen",
+    "slug": "deutsch-lernen",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "deutsch-lernen",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#121212"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#121212"
+      },
+      "package": "com.deutschlernen.app"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
