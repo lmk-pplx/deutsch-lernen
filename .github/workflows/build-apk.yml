@@ -40,7 +40,6 @@ jobs:
 
       - name: Configure release signing
         run: |
-          # Generate a keystore for signing
           keytool -genkeypair -v \
             -storetype PKCS12 \
             -keystore android/app/release.keystore \
@@ -48,54 +47,7 @@ jobs:
             -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass android -keypass android \
             -dname "CN=Deutsch Lernen, OU=Dev, O=Dev, L=Berlin, ST=Berlin, C=DE"
-
-          # Inject signing config into the existing android block in build.gradle
-          # We use sed to add signingConfigs before the closing of the android block
-          # and configure the release buildType to use it
-          python3 << 'PYEOF'
-          import re
-
-          with open("android/app/build.gradle", "r") as f:
-              content = f.read()
-
-          # Add signingConfigs inside the android block, right after "android {"
-          signing_config = '''
-    signingConfigs {
-        release {
-            storeFile file("release.keystore")
-            storePassword "android"
-            keyAlias "release"
-            keyPassword "android"
-        }
-    }
-'''
-          # Insert after the first "android {" line
-          content = content.replace(
-              'android {',
-              'android {\n' + signing_config,
-              1
-          )
-
-          # Make release buildType use the signing config
-          # Find "buildTypes {" and add/modify release config
-          if 'release {' in content and 'signingConfig' not in content:
-              content = content.replace(
-                  'release {',
-                  'release {\n            signingConfig signingConfigs.release',
-                  1
-              )
-          elif 'buildTypes {' in content and 'release {' not in content:
-              content = content.replace(
-                  'buildTypes {',
-                  'buildTypes {\n        release {\n            signingConfig signingConfigs.release\n            minifyEnabled false\n            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"\n        }',
-                  1
-              )
-
-          with open("android/app/build.gradle", "w") as f:
-              f.write(content)
-
-          print("Signing config injected successfully")
-          PYEOF
+          python3 scripts/inject-signing.py
 
       - name: Build release APK
         working-directory: android
